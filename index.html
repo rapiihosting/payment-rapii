@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Digital</title>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --success: #00b894;
+            --danger: #d63031;
+            --light: #f5f6fa;
+            --dark: #2d3436;
+            --shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .payment-methods {
+            padding: 30px;
+        }
+        
+        .method {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            cursor: pointer;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        .method:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            border-color: var(--secondary);
+        }
+        
+        .method.active {
+            border-color: var(--primary);
+            background: rgba(108, 92, 231, 0.05);
+        }
+        
+        .method-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .method-icon img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+        
+        .method-details {
+            flex-grow: 1;
+        }
+        
+        .method-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .method-info {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .copy-btn:hover {
+            background: var(--secondary);
+            transform: scale(1.05);
+        }
+        
+        .copy-btn i {
+            margin-right: 5px;
+        }
+        
+        .qris-container {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .qris-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .qris-placeholder {
+            width: 200px;
+            height: 200px;
+            background: var(--light);
+            margin: 0 auto 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: var(--dark);
+        }
+        
+        .qris-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .instructions {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .success-message.show {
+            transform: translateX(0);
+        }
+        
+        .success-message i {
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 15px;
+            }
+            
+            header {
+                padding: 20px;
+            }
+            
+            .payment-methods {
+                padding: 20px;
+            }
+            
+            .method {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .method-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .qris-placeholder {
+                width: 180px;
+                height: 180px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pembayaran Digital</h1>
+            <p>Pilih metode pembayaran yang Anda inginkan</p>
+        </header>
+        
+        <div class="payment-methods">
+            <div class="method" onclick="showQRIS()">
+                <div class="method-icon">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png" alt="QRIS">
+                </div>
+                <div class="method-details">
+                    <div class="method-title">
+                        <span>QRIS</span>
+                    </div>
+                    <div class="method-info">
+                        Scan kode QR untuk pembayaran multi-ewallet
+                    </div>
+                </div>
+            </div>
+            
+            <div class="method" onclick="showNumber('dana')">
+                <div class="method-icon" style="background: #00a1e5; color: white;">
+                    <i class="fab fa-cc-visa"></i>
+                </div>
+                <div class="method-details">
+                    <div class="method-title">
+                        <span>DANA</span>
+                    </div>
+                    <div class="method-info">
+                        Nomor: <span id="dana-number">087872891195</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('dana-number', event)">
+                        <i class="fas fa-copy"></i> Salin Nomor
+                    </button>
+                </div>
+            </div>
+            
+            <div class="method" onclick="showNumber('gopay')">
+                <div class="method-icon" style="background: #00aa13; color: white;">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="method-details">
+                    <div class="method-title">
+                        <span>GoPay</span>
+                    </div>
+                    <div class="method-info">
+                        Nomor: <span id="gopay-number">087872891195</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('gopay-number', event)">
+                        <i class="fas fa-copy"></i> Salin Nomor
+                    </button>
+                </div>
+            </div>
+            
+            <div class="method" onclick="showNumber('ovo')">
+                <div class="method-icon" style="background: #4c2b87; color: white;">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="method-details">
+                    <div class="method-title">
+                        <span>OVO</span>
+                    </div>
+                    <div class="method-info">
+                        Nomor: <span id="ovo-number">087872891195</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('ovo-number', event)">
+                        <i class="fas fa-copy"></i> Salin Nomor
+                    </button>
+                </div>
+            </div>
+            
+            <div class="qris-container" id="qris-container">
+                <div class="qris-placeholder">
+                    <i class="fas fa-qrcode"></i>
+                    <span>QR Code akan muncul di sini</span>
+                </div>
+                <p>Silakan minta QRIS kepada penjual</p>
+            </div>
+            
+            <div class="instructions">
+                <h3>Petunjuk Pembayaran:</h3>
+                <ol>
+                    <li>Pilih metode pembayaran di atas</li>
+                    <li>Salin nomor atau scan QR code</li>
+                    <li>Lakukan pembayaran melalui aplikasi</li>
+                    <li>Simpan bukti pembayaran Anda</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <div class="success-message" id="success-message">
+        <i class="fas fa-check-circle"></i>
+        <span>Nomor berhasil disalin!</span>
+    </div>
+    
+    <script>
+        function copyToClipboard(id, event) {
+            event.stopPropagation();
+            const element = document.getElementById(id);
+            const text = element.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccessMessage();
+            }).catch(err => {
+                console.error('Gagal menyalin teks: ', err);
+            });
+        }
+        
+        function showSuccessMessage() {
+            const message = document.getElementById('success-message');
+            message.classList.add('show');
+            
+            setTimeout(() => {
+                message.classList.remove('show');
+            }, 3000);
+        }
+        
+        function showQRIS() {
+            document.getElementById('qris-container').classList.add('active');
+        }
+        
+        function showNumber(type) {
+            document.getElementById('qris-container').classList.remove('active');
+            // Anda bisa menambahkan logika tambahan di sini jika diperlukan
+        }
+        
+        // Mencegah event bubbling saat mengklik tombol salin
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
+</body>
+</html>
